@@ -63,7 +63,9 @@ public class SchemaApiServiceImpl extends SchemaApiService {
         List<String> rangeKeyList = new ArrayList<>();
         for (ColumnInfo column: schema) {
             columnSchemaList.add(column.buildKuduColumnSchema());
-            rangeKeyList.add(column.getName());
+            if (column.getDataType().toUpperCase().equals("INT32")) {
+                rangeKeyList.add(column.getName());
+            }
         }
 
         // Submit an asynchronous request to create a table.
@@ -80,7 +82,12 @@ public class SchemaApiServiceImpl extends SchemaApiService {
                 return null;
             }
         });
-        tableHook.join();
+        try {
+            tableHook.join();
+        } catch (Exception ex) {
+            KuduContext.resetInstance();
+            return Response.serverError().entity(new ApiResponseMessage(ApiResponseMessage.ERROR, "Error occurred!")).build();
+        }
         return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "Table created!")).build();
     }
 }

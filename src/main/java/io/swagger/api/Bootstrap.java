@@ -34,7 +34,8 @@ public class Bootstrap extends HttpServlet {
     new SwaggerContextService().withServletConfig(config).updateSwagger(swagger);
 
     // Initialize KuduContext singleton.
-    AsyncKuduClient client = new AsyncKuduClient.AsyncKuduClientBuilder("0.0.0.0:7051").build();
+    AsyncKuduClient client = new AsyncKuduClient.AsyncKuduClientBuilder(
+      KuduContext.master_addr_).build();
     KuduContext kuduContext = KuduContext.getInstance(client);
   }
 }
