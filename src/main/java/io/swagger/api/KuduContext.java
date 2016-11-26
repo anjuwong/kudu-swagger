@@ -6,7 +6,8 @@ public class KuduContext {
     private static KuduContext INSTANCE;
     private final AsyncKuduClient kuduClient_;
 
-    public static String master_addr_;
+    public static String master_addr_ = "0.0.0.0:7051";
+
     public AsyncKuduClient getClient() {
         return kuduClient_;
     }
