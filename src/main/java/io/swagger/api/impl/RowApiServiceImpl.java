@@ -24,6 +24,19 @@ import org.apache.kudu.client.*;
 public class RowApiServiceImpl extends RowApiService {
     @Override
     public Response rowPut(String tableId, final RowEntry row, SecurityContext securityContext) throws NotFoundException {
+        AsyncKuduClient client = KuduContext.getInstance().getClient();
+        final AsyncKuduSession session = client.newSession();
+        Deferred<KuduTable> table = client.openTable(tableId);
+        KuduTable kuduTable = table.join();
+        Insert insert = table.newInsert();
+        PartialRow kuduRow = insert.getRow();
+        row.getKuduRow(kuduRow);
+        Deferred<OperationResponse> insertHook = session.apply(insert);
+        OperationResponse resp = insertHook.join()
+        return Response.ok().entity(new ApiResponseMessage(ApiResponseMessage.OK, "Row inserted!")).build();
+    }
+
+    public Response async_rowPut(String tableId, final RowEntry row, SecurityContext securityContext) throws NotFoundException {
         // Asynchronously add the row to a given table.
         AsyncKuduClient client = KuduContext.getInstance().getClient();
         final AsyncKuduSession session = client.newSession();
